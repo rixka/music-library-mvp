@@ -1,9 +1,9 @@
 # Music Library MVP
 This is a python application which interfaces with mongoDB to read and updates a collection in that database.
 
-[![Build Status](https://api.travis-ci.org/rixka/music-library-mvp.svg?branch=master)](https://api.travis-ci.org/rixka/music-library-mvp.svg)
+[![Build Status](https://travis-ci.org/rixka/music-library-mvp.svg?branch=master)](https://travis-ci.org/rixka/music-library-mvp)
 
-_Note: This project assumes virtualenv and docker is installed_
+_Note: This project assumes **virtualenv**, **docker**, and **docker-compose** are installed locally._
 
 ### Requirements:
 - JSON API Driven backenend written in Python.
