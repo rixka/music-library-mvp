@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  mongodb:
+    image: mvertes/alpine-mongo
+    ports:
+      - "27017:27017"
+  
+  mongo-seed:
+    build: ./db/mongodb-seed
+    links:
+      - mongodb
+
