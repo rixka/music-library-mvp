@@ -6,8 +6,8 @@ services:
     ports:
       - "27017:27017"
   
-  mongo-seed:
-    build: ./db/mongodb-seed
+  mongo-setup:
+    build: ./db/mongodb-setup
     links:
       - mongodb
 
