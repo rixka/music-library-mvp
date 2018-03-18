@@ -3,6 +3,7 @@ import pytest
 from flask import url_for
 from jsonschema import validate
 from bson.json_util import dumps
+from bson.objectid import ObjectId
 
 from app.utils import JSON_MIME_TYPE
 from common import MongoSystemTest
@@ -192,27 +193,33 @@ class TestSongsSearchAPI(object):
         assert res.json == { 'error': 'Not Found' }
 
 
-@pytest.mark.skip(reason='Not implemented yet')
 class TestSongsRatingsAPI(MongoSystemTest):
 
     @classmethod
     def setup_class_custom(cls):
-        cls.api = 'api.songs_ratings'
+        cls.api = 'api.songs_rating'
+        cls.song_id = cls.song_ids[0]['_id']
         cls.headers = {
             'Content-Type': JSON_MIME_TYPE,
             'Accept': JSON_MIME_TYPE
         }
 
     def test_post_rating(self, client):
-        data = { 'song_id': 'xyz', 'rating': 3 }
-        res = client.post(url_for(self.api), data=json.dumps(data), headers=self.headers)
+        data = { 'songId': str(self.song_id), 'rating': 3 }
+        res = client.post(url_for(self.api), data=dumps(data), headers=self.headers)
 
-        assert res.status_code == 204
+        assert res.status_code == 201
         assert res.mimetype == JSON_MIME_TYPE
+        assert res.json == { 'message': 'The item was created successfully' }
+        assert res.headers.get('Location') is not None
+
+        rating_id = res.headers.get('Location').split('/')[-1]
+        db_res = self.db.ratings.find({ '_id': ObjectId(rating_id) }).limit(1)
+        assert list(db_res) != []
 
     def test_post_rating_bad_id(self, client):
-        data = { 'song_id': 'xyz', 'rating': 10 }
-        res = client.post(url_for(self.api), data=json.dumps(data), headers=self.headers)
+        data = { 'songId': self.song_id, 'rating': 10 }
+        res = client.post(url_for(self.api), data=dumps(data), headers=self.headers)
 
         assert res.status_code == 400
         assert res.mimetype == JSON_MIME_TYPE
@@ -225,9 +232,17 @@ class TestSongsRatingsAPI(MongoSystemTest):
         assert res.mimetype == JSON_MIME_TYPE
         assert res.json == { 'error': 'Bad Request' }
 
+    def test_post_rating_bad_id(self, client):
+        data = { 'songId': 'xyz', 'rating': 3 }
+        res = client.post(url_for(self.api), data=dumps(data), headers=self.headers)
+
+        assert res.status_code == 400
+        assert res.mimetype == JSON_MIME_TYPE
+        assert res.json == { 'error': 'Bad Request' }
+
     def test_post_rating_not_found(self, client):
-        data = { 'song_id': 'xyz', 'rating': 3 }
-        res = client.post(url_for(self.api), data=json.dumps(data), headers=self.headers)
+        data = { 'songId': '5abd9fbcd48b40737d3c14db', 'rating': 3 }
+        res = client.post(url_for(self.api), data=dumps(data), headers=self.headers)
 
         assert res.status_code == 404
         assert res.mimetype == JSON_MIME_TYPE
@@ -278,7 +293,7 @@ class TestSongsAvgRatingsAPI(MongoSystemTest):
         assert res.json == { 'error': 'Bad Request' }
 
     def test_avg_rating_not_found(self, client):
-        res = client.get(url_for(self.api, song_id='5aad9fbcd48b40737d3c14db'))
+        res = client.get(url_for(self.api, song_id='5abd9fbcd48b40737d3c14db'))
 
         assert res.status_code == 404
         assert res.mimetype == JSON_MIME_TYPE

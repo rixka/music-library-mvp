@@ -1,7 +1,7 @@
 import ast
-from flask import Blueprint, abort
-
+from flask import Blueprint, request, abort
 from pymongo import MongoClient
+
 from utils import (
     json_response, validate_object_id, parse_query
 )
@@ -16,7 +16,7 @@ db = MongoClient('localhost', 27017).development
 def catch_all(path):
     abort(404)
 
-@api.route('/health')
+@api.route('/health', methods=['GET'])
 def health():
     return json_response({'status': 'ok'}, 200)
 
@@ -30,22 +30,20 @@ def songs_list():
         'data': songs
     })
 
-@api.route('/songs/avg/difficulty')
+@api.route('/songs/avg/difficulty', methods=['GET'])
 def songs_avg_difficulty():
     level = parse_query('level')
     query = { 'level': level } if level else {}
     fields = { 'artist': 1, 'title': 1, 'difficulty': 1 }
 
     songs = list(db.songs.find(query, fields))
-
-    if songs == []:
-        abort(404)
+    check_not_empty(songs)
 
     return json_response({
         'data': songs
     })
 
-@api.route('/songs/search')
+@api.route('/songs/search', methods=['GET'])
 def songs_search():
     message = parse_query('message')
 
@@ -54,25 +52,26 @@ def songs_search():
 
     query = { '$text': { '$search': message } }
     songs = list(db.songs.find(query))
-
-    if songs == []:
-        abort(404)
+    check_not_empty(songs)
 
     return json_response({
         'data': songs
     })
 
-@api.route('/songs/rating')
-def songs_rating(song_id):
-    abort(501)
+@api.route('/songs/rating', methods=['POST'])
+def songs_rating():
+    data = request.json
+    data['songId'] = validate_object_id(data['songId'])
+    validate_song_exists(data['songId'])
 
-@api.route('/songs/avg/rating/<song_id>')
+    rating_id = db.ratings.insert(data)
+    headers = { 'Location': str.join('/', [ '/songs/rating', str(rating_id) ]) }
+    return json_response({ 'message': 'The item was created successfully' }, 201, headers)
+
+@api.route('/songs/avg/rating/<song_id>', methods=['GET'])
 def songs_avg_rating(song_id):
     song_id = validate_object_id(song_id)
-    result = db.songs.find({ '_id': song_id }, { '_id': 1 }).limit(1)
-
-    if list(result) == []:
-        abort(404)
+    validate_song_exists(song_id)
 
     rating = db.ratings.aggregate([
         {
@@ -109,4 +108,16 @@ def internal_error(error):
 @api.errorhandler(501)
 def not_implemented(error):
     return json_response({'error': 'Not Implemented'}, 501)
+
+
+# TODO: Move into a database module
+def validate_song_exists(song_id):
+    check_not_empty(
+        list(
+            db.songs.find({ '_id': song_id }, { '_id': 1 }).limit(1)
+        )
+    )
+
+def check_not_empty(r):
+    if r == []: abort(404)
 
