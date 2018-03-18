@@ -6,7 +6,7 @@ from bson.json_util import dumps
 from bson.objectid import ObjectId
 
 from app.utils import JSON_MIME_TYPE
-from common import MongoSystemTest
+from common import MongoSystemTest, build_query
 
 """
 These tests required MongoDB to be running locally.
@@ -70,7 +70,7 @@ class TestSongsAPI(MongoSystemTest):
         last_id = res_orig.json['data'][-1]['_id']['$oid']
 
         res = client.get(
-            url_for(self.api, query_string={ 'last-id': last_id })
+            build_query(self.api, [ '?last-id=', last_id ])
         )
 
         assert res.status_code == 200
@@ -80,7 +80,7 @@ class TestSongsAPI(MongoSystemTest):
 
     def test_list_bad_id(self, client):
         res = client.get(
-            url_for(self.api, query_string={ 'last-id': '123' })
+            build_query(self.api, [ '?last-id=123' ])
         )
 
         assert res.status_code == 400
@@ -89,7 +89,7 @@ class TestSongsAPI(MongoSystemTest):
 
     def test_list_id_not_found(self, client):
         res = client.get(
-            url_for(self.api, query_string={ 'last-id': '5abd9fbcd48b40737d3c14db' })
+            build_query(self.api, [ '?last-id=5abd9fbcd48b40737d3c14db' ])
         )
 
         assert res.status_code == 200
@@ -122,7 +122,7 @@ class TestDifficultyAPI(object):
 
     def test_avg_difficulty_level_query(self, client):
         res = client.get(
-            url_for(self.api, query_string={ 'level': 6 })
+            build_query(self.api, [ '?level=6' ])
         )
 
         assert res.status_code == 200
@@ -132,7 +132,7 @@ class TestDifficultyAPI(object):
 
     def test_avg_difficulty_level_not_found(self, client):
         res = client.get(
-            url_for(self.api, query_string={ 'level': 10000 })
+            build_query(self.api, [ '?level=10000' ])
         )
 
         assert res.status_code == 404
@@ -169,7 +169,7 @@ class TestSongsSearchAPI(object):
 
     def test_search(self, client):
         res = client.get(
-            url_for(self.api, query_string={ 'message': 'fastfinger' })
+            build_query(self.api, [ '?message=fastfinger' ])
         )
 
         assert res.status_code == 200
@@ -185,7 +185,7 @@ class TestSongsSearchAPI(object):
 
     def test_search_not_found(self, client):
         res = client.get(
-            url_for(self.api, query_string={ 'message': 'foobar' })
+            build_query(self.api, [ '?message=foobar' ])
         )
 
         assert res.status_code == 404

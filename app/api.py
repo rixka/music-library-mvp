@@ -33,7 +33,7 @@ def songs_list():
 @api.route('/songs/avg/difficulty', methods=['GET'])
 def songs_avg_difficulty():
     level = parse_query('level')
-    query = { 'level': level } if level else {}
+    query = { 'level': int(level) } if level else {}
     fields = { 'artist': 1, 'title': 1, 'difficulty': 1 }
 
     songs = list(db.songs.find(query, fields))

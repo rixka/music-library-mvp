@@ -1,4 +1,6 @@
 import random
+
+from flask import url_for
 from pymongo import MongoClient
 
 
@@ -25,4 +27,10 @@ class MongoSystemTest(object):
                 cls.db.ratings.insert({ 'songId': object_id, 'rating': random.randint(1, 5) })
 
         cls.rating_ids = list(cls.db.ratings.find({}, { '_id': 1 }).sort('_id'))
+
+
+def build_query(api, items=None):
+    items = items or []
+    items.insert( 0, url_for(api) )
+    return str.join('', items)
 

@@ -20,6 +20,6 @@ def validate_object_id(_id):
         abort(400)
 
 def parse_query(param):
-    qs = request.args.get('query_string')
-    return literal_eval(qs).get(param) if qs else None
+    target = dict(request.args).get(param)
+    return target[0] if target else None
 
