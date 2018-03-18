@@ -85,13 +85,14 @@ _Note: More information available [here](https://gist.github.com/bastman/5b57ddb
 * LOGGING!!!!!!
 * LOGGING!!!!!!
 * And more logging - possibly look into integrating sentry.
-* GraphQL
+* GraphQL.
 * Build and push api image to a docker registry for production use.
 * Appropriate API documentation (i.e Swagger).
-* Meaningful Error messages (i.e Bad Request - invalid parameter)
+* Meaningful Error messages (i.e Bad Request - invalid parameter).
 * Unit tests with mocks bypassing Flask and MongoDB.
 * Breakdown the code into more modular components.
 * The tests should continue to grow, separating them out may become necessary.
-* OAuth 2.0
+* OAuth 2.0.
+* JSON transformation on the outputs, the `_id` is a bit unsightly.
 
 _Note: Feedback welcomed._
