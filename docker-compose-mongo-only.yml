@@ -1,12 +1,62 @@
 version: "3"
 
 services:
-  mongodb:
-    image: mvertes/alpine-mongo
+  # === CONFIG SERVERS === #
+  db-config-1:
+    build: ./db/mongodb-config
+
+  db-config-2:
+    build: ./db/mongodb-config
+
+  db-config-3:
+    build: ./db/mongodb-config
+
+  # === SHARDS === #
+  db-shard-1a:
+    build: ./db/mongodb-shard-1
+
+  db-shard-1b:
+    build: ./db/mongodb-shard-1
+
+  db-shard-2a:
+    build: ./db/mongodb-shard-2
+
+  db-shard-2b:
+    build: ./db/mongodb-shard-2
+
+  db-shard-3a:
+    build: ./db/mongodb-shard-3
+
+  db-shard-3b:
+    build: ./db/mongodb-shard-3
+
+  # === ROUTER === #
+  db-router:
+    build:
+      context: ./db/mongodb-router
+      args:
+        - CONFIG1=config01
+        - CONFIG2=config02
+        - CONFIG3=config03
     ports:
       - "27017:27017"
-  
-  mongo-setup:
+    depends_on:
+      - db-config-1
+      - db-config-2
+      - db-config-3
+      - db-shard-1a
+      - db-shard-1b
+      - db-shard-2a
+      - db-shard-2b
+      - db-shard-3a
+      - db-shard-3b
+
+  # === MONGO SETUP === #
+  db-setup:
     build: ./db/mongodb-setup
     links:
-      - mongodb
+      - db-config-1
+      - db-shard-1a
+      - db-shard-2a
+      - db-shard-3a
+      - db-router
