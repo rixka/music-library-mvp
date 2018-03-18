@@ -193,11 +193,11 @@ class TestSongsSearchAPI(object):
         assert res.json == { 'error': 'Not Found' }
 
 
-class TestSongsRatingsAPI(MongoSystemTest):
+class TestCreateSongsRatingsAPI(MongoSystemTest):
 
     @classmethod
     def setup_class_custom(cls):
-        cls.api = 'api.songs_rating'
+        cls.api = 'api.create_songs_rating'
         cls.song_id = cls.song_ids[0]['_id']
         cls.headers = {
             'Content-Type': JSON_MIME_TYPE,
@@ -243,6 +243,53 @@ class TestSongsRatingsAPI(MongoSystemTest):
     def test_post_rating_not_found(self, client):
         data = { 'songId': '5abd9fbcd48b40737d3c14db', 'rating': 3 }
         res = client.post(url_for(self.api), data=dumps(data), headers=self.headers)
+
+        assert res.status_code == 404
+        assert res.mimetype == JSON_MIME_TYPE
+        assert res.json == { 'error': 'Not Found' }
+
+
+class TestSongsRatingsAPI(MongoSystemTest):
+
+    @classmethod
+    def setup_class_custom(cls):
+        cls.api = 'api.songs_rating'
+        cls.seed_ratings()
+        cls.rating_id = str(cls.rating_ids[0]['_id'])
+
+        cls.schema = {
+          'type': 'object',
+          'properties': {
+            'songId': { 'type': 'object' },
+            'rating': { 'type': 'integer' },
+          },
+          'required': [ 'songId', 'rating' ]
+        }
+
+    def test_rating(self, client):
+        res = client.get(url_for(self.api, rating_id=self.rating_id))
+
+        assert res.status_code == 200
+        assert res.mimetype == JSON_MIME_TYPE
+        assert validate(res.json['data'], self.schema) is None
+        assert res.json['data']['_id']['$oid'] == self.rating_id
+
+    def test_rating_no_id(self, client):
+        res = client.get(url_for(self.api, rating_id=''))
+
+        assert res.status_code == 404
+        assert res.mimetype == JSON_MIME_TYPE
+        assert res.json == { 'error': 'Not Found' }
+
+    def test_rating_bad_id(self, client):
+        res = client.get(url_for(self.api, rating_id='123'))
+
+        assert res.status_code == 400
+        assert res.mimetype == JSON_MIME_TYPE
+        assert res.json == { 'error': 'Bad Request' }
+
+    def test_rating_not_found(self, client):
+        res = client.get(url_for(self.api, rating_id='5abd9fbcd48b40737d3c14db'))
 
         assert res.status_code == 404
         assert res.mimetype == JSON_MIME_TYPE

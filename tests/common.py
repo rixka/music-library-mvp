@@ -24,3 +24,5 @@ class MongoSystemTest(object):
             for i in range(0, random.randint(1, 10)):
                 cls.db.ratings.insert({ 'songId': object_id, 'rating': random.randint(1, 5) })
 
+        cls.rating_ids = list(cls.db.ratings.find({}, { '_id': 1 }).sort('_id'))
+

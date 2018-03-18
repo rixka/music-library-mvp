@@ -59,7 +59,7 @@ def songs_search():
     })
 
 @api.route('/songs/rating', methods=['POST'])
-def songs_rating():
+def create_songs_rating():
     data = request.json
     data['songId'] = validate_object_id(data['songId'])
     validate_song_exists(data['songId'])
@@ -67,6 +67,16 @@ def songs_rating():
     rating_id = db.ratings.insert(data)
     headers = { 'Location': str.join('/', [ '/songs/rating', str(rating_id) ]) }
     return json_response({ 'message': 'The item was created successfully' }, 201, headers)
+
+@api.route('/songs/rating/<rating_id>', methods=['GET'])
+def songs_rating(rating_id):
+    rating_id = validate_object_id(rating_id)
+    rating = list(db.ratings.find({ '_id': rating_id }).limit(1))
+    check_not_empty(rating)
+
+    return json_response({
+        'data': rating[0]
+    })
 
 @api.route('/songs/avg/rating/<song_id>', methods=['GET'])
 def songs_avg_rating(song_id):
