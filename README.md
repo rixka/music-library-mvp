@@ -15,7 +15,7 @@ _Note: This project assumes **virtualenv**, **docker**, and **docker-compose** a
 ### Quick Start with Docker
 
 ```shell
-make docker-up
+make docker-up # or `make docker-up-mongo` to only setup mongoDB
 make docker-logs
 make docker-down
 ```
@@ -29,6 +29,7 @@ docker-compose down
 
 ### Quick testing
 ```shell
+make docker-up-mongo
 make venv
 make test
 ```

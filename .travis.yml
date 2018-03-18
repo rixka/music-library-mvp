@@ -8,7 +8,7 @@ services:
   - docker
 
 before_install:
-  - "make docker-up"
+  - "make docker-up-mongo"
 
 install: "make venv"
 script: "make test"
