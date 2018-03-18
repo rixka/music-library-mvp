@@ -46,7 +46,7 @@ Once the API and mongoDB containers are running you can curl requests or navigat
 
 #### Example - curl
 ```
-curl -v "http://localhost:5000/songs
+curl -v http://localhost:5000/songs
 
 # example id
 curl -v "http://localhost:5000/songs?last-id=5aae8dd659b58a3eb2973b6c"
@@ -82,9 +82,9 @@ _Note: More information available [here](https://gist.github.com/bastman/5b57ddb
 
 ## Future Work
 
-* LOGGING!!!!!!
-* LOGGING!!!!!!
-* And more logging - possibly look into integrating sentry.
+* **LOGGING!!!!!!**
+* **LOGGING!!!!!!**
+* And more **logging** - possibly look into integrating sentry.
 * GraphQL.
 * Build and push api image to a docker registry for production use.
 * Appropriate API documentation (i.e Swagger).
