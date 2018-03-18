@@ -47,7 +47,20 @@ def songs_avg_difficulty():
 
 @api.route('/songs/search')
 def songs_search():
-    abort(501)
+    message = parse_query('message')
+
+    if not message:
+        return songs_list()
+
+    query = { '$text': { '$search': message } }
+    songs = list(db.songs.find(query))
+
+    if songs == []:
+        abort(404)
+
+    return json_response({
+        'data': songs
+    })
 
 @api.route('/songs/avg/rating/<song_id>')
 def songs_avg_rating(song_id):

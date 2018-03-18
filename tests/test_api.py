@@ -138,7 +138,6 @@ class TestDifficultyAPI(object):
         assert res.mimetype == JSON_MIME_TYPE
         assert res.json == { 'error': 'Not Found' }
 
-
     def test_avg_difficulty(self, client):
         res = client.get(url_for(self.api))
 
@@ -147,7 +146,6 @@ class TestDifficultyAPI(object):
         assert validate(res.json['data'], self.schema) is None
 
 
-@pytest.mark.skip(reason='Not implemented yet')
 class TestSongsSearchAPI(object):
 
     @classmethod
