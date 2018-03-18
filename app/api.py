@@ -37,13 +37,24 @@ def songs_list():
 def songs_avg_difficulty():
     level = parse_query('level')
     query = { 'level': int(level) } if level else {}
-    fields = { 'artist': 1, 'title': 1, 'difficulty': 1 }
 
-    songs = list(db.songs.find(query, fields))
+    songs = list(
+        db.songs.aggregate([
+            {
+                '$match': query
+            },
+            {
+                '$group': {
+                    '_id': 'null',
+                    'avgDifficulty': { '$avg': '$difficulty' }
+                }
+            }
+        ])
+    )
     check_not_empty(songs)
 
     return json_response({
-        'data': songs
+        'data': songs[0]
     })
 
 @api.route('/songs/search', methods=['GET'])

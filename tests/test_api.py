@@ -100,24 +100,19 @@ class TestSongsAPI(MongoSystemTest):
         assert res.json['data'] == []
 
 
-class TestDifficultyAPI(object):
+class TestAVGDifficultyAPI(object):
 
     @classmethod
     def setup_class(cls):
         cls.api = 'api.songs_avg_difficulty'
         cls.schema = {
-          'type': 'array',
-          'items': {
-            'type': 'object',
-            'properties': {
-              '_id': { 'type': 'object' },
-              'artist': { 'type': 'string' },
-              'title': { 'type': 'string' },
-              'difficulty': { 'type': 'number' },
-            },
-            'required': [ 'artist', 'title', 'difficulty' ],
-            'additionalProperties': False
-          }
+          'type': 'object',
+          'properties': {
+            '_id': { 'type': 'string' },
+            'avgDifficulty': { 'type': 'number' }
+          },
+          'required': [ 'avgDifficulty' ],
+          'additionalProperties': False
         }
 
     def test_avg_difficulty_level_query(self, client):
@@ -128,7 +123,7 @@ class TestDifficultyAPI(object):
         assert res.status_code == 200
         assert res.mimetype == JSON_MIME_TYPE
         assert validate(res.json['data'], self.schema) is None
-        assert len(res.json['data']) == 2
+        assert res.json['data']['avgDifficulty'] == 6
 
     def test_avg_difficulty_level_not_found(self, client):
         res = client.get(
@@ -145,6 +140,7 @@ class TestDifficultyAPI(object):
         assert res.status_code == 200
         assert res.mimetype == JSON_MIME_TYPE
         assert validate(res.json['data'], self.schema) is None
+        assert res.json['data']['avgDifficulty'] == 10.323636363636364
 
 
 class TestSongsSearchAPI(object):
