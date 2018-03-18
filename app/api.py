@@ -1,3 +1,4 @@
+from os import environ
 from flask import Blueprint, request, abort
 from pymongo import MongoClient
 
@@ -5,9 +6,11 @@ from utils import (
     json_response, validate_object_id, parse_query
 )
 
+MONGO_HOST = environ.get('MONGO_HOST') or 'localhost'
+MONGO_DB = environ.get('MONGO_DB') or 'development'
+
 api = Blueprint('api', __name__)
-db = MongoClient('localhost', 27017).development
-# TODO: ^^ fix
+db = MongoClient(MONGO_HOST, 27017)[MONGO_DB]
 
 
 @api.route('/', defaults={'path': ''})
