@@ -1,4 +1,3 @@
-from ast import literal_eval
 from bson.json_util import dumps
 from bson.objectid import ObjectId
 from flask import make_response, request, abort

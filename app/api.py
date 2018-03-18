@@ -1,4 +1,3 @@
-import ast
 from flask import Blueprint, request, abort
 from pymongo import MongoClient
 
