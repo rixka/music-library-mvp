@@ -3,7 +3,8 @@ from flask import Blueprint, request, abort
 from pymongo import MongoClient
 
 from utils import (
-    json_response, validate_object_id, parse_query
+    json_response, validate_object_id,
+    parse_query, validate_rating
 )
 
 MONGO_HOST = environ.get('MONGO_HOST') or 'localhost'
@@ -64,6 +65,8 @@ def songs_search():
 def create_songs_rating():
     data = request.json
     data['songId'] = validate_object_id(data['songId'])
+
+    validate_rating(data['rating'])
     validate_song_exists(data['songId'])
 
     rating_id = db.ratings.insert(data)

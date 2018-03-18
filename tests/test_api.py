@@ -217,8 +217,8 @@ class TestCreateSongsRatingsAPI(MongoSystemTest):
         db_res = self.db.ratings.find({ '_id': ObjectId(rating_id) }).limit(1)
         assert list(db_res) != []
 
-    def test_post_rating_bad_id(self, client):
-        data = { 'songId': self.song_id, 'rating': 10 }
+    def test_post_rating_bad_rating(self, client):
+        data = { 'songId': str(self.song_id), 'rating': 10 }
         res = client.post(url_for(self.api), data=dumps(data), headers=self.headers)
 
         assert res.status_code == 400
