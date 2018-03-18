@@ -62,10 +62,35 @@ def songs_search():
         'data': songs
     })
 
-@api.route('/songs/avg/rating/<song_id>')
-def songs_avg_rating(song_id):
+@api.route('/songs/rating')
+def songs_rating(song_id):
     abort(501)
 
+@api.route('/songs/avg/rating/<song_id>')
+def songs_avg_rating(song_id):
+    song_id = validate_object_id(song_id)
+    result = db.songs.find({ '_id': song_id }, { '_id': 1 }).limit(1)
+
+    if list(result) == []:
+        abort(404)
+
+    rating = db.ratings.aggregate([
+        {
+            '$match': { 'songId': song_id }
+        },
+        {
+            '$group': {
+                '_id': '$songId',
+                'minRating': { '$min': '$rating' },
+                'avgRating': { '$avg': '$rating' },
+                'maxRating': { '$max': '$rating' }
+            }
+        }
+    ])
+
+    return json_response({
+        'data': rating
+    })
 
 # === HANDLERS === #
 

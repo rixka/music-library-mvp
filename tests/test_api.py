@@ -234,7 +234,6 @@ class TestSongsRatingsAPI(MongoSystemTest):
         assert res.json == { 'error': 'Not Found' }
 
 
-@pytest.mark.skip(reason='Not implemented yet')
 class TestSongsAvgRatingsAPI(MongoSystemTest):
 
     @classmethod
@@ -274,9 +273,9 @@ class TestSongsAvgRatingsAPI(MongoSystemTest):
     def test_avg_rating_bad_id(self, client):
         res = client.get(url_for(self.api, song_id='123'))
 
-        assert res.status_code == 404
+        assert res.status_code == 400
         assert res.mimetype == JSON_MIME_TYPE
-        assert res.json == { 'error': 'Not Found' }
+        assert res.json == { 'error': 'Bad Request' }
 
     def test_avg_rating_not_found(self, client):
         res = client.get(url_for(self.api, song_id='5aad9fbcd48b40737d3c14db'))
