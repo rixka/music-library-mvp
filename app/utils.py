@@ -1,6 +1,7 @@
+from ast import literal_eval
 from bson.json_util import dumps
 from bson.objectid import ObjectId
-from flask import make_response, abort
+from flask import make_response, request, abort
 
 JSON_MIME_TYPE = 'application/json'
 
@@ -17,4 +18,8 @@ def validate_object_id(_id):
         return ObjectId(_id)
     else:
         abort(400)
+
+def parse_query(param):
+    qs = request.args.get('query_string')
+    return literal_eval(qs).get(param) if qs else None
 

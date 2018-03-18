@@ -1,8 +1,10 @@
 import ast
-from flask import Blueprint, request, abort
+from flask import Blueprint, abort
 
 from pymongo import MongoClient
-from utils import json_response, validate_object_id
+from utils import (
+    json_response, validate_object_id, parse_query
+)
 
 api = Blueprint('api', __name__)
 db = MongoClient('localhost', 27017).development
@@ -20,9 +22,7 @@ def health():
 
 @api.route('/songs')
 def songs_list():
-    query_string = request.args.get('query_string')
-    last_id = ast.literal_eval(query_string).get('last-id') if query_string else None
-
+    last_id =  parse_query('last-id')
     query = { '_id': { '$gt': validate_object_id(last_id) } } if last_id else {}
 
     songs = db.songs.find(query).sort('_id').limit(5)
@@ -32,7 +32,18 @@ def songs_list():
 
 @api.route('/songs/avg/difficulty')
 def songs_avg_difficulty():
-    abort(501)
+    level = parse_query('level')
+    query = { 'level': level } if level else {}
+    fields = { 'artist': 1, 'title': 1, 'difficulty': 1 }
+
+    songs = list(db.songs.find(query, fields))
+
+    if songs == []:
+        abort(404)
+
+    return json_response({
+        'data': songs
+    })
 
 @api.route('/songs/search')
 def songs_search():

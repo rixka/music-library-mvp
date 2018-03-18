@@ -99,7 +99,6 @@ class TestSongsAPI(MongoSystemTest):
         assert res.json['data'] == []
 
 
-@pytest.mark.skip(reason='Not implemented yet')
 class TestDifficultyAPI(object):
 
     @classmethod
@@ -129,6 +128,16 @@ class TestDifficultyAPI(object):
         assert res.mimetype == JSON_MIME_TYPE
         assert validate(res.json['data'], self.schema) is None
         assert len(res.json['data']) == 2
+
+    def test_avg_difficulty_level_not_found(self, client):
+        res = client.get(
+            url_for(self.api, query_string={ 'level': 10000 })
+        )
+
+        assert res.status_code == 404
+        assert res.mimetype == JSON_MIME_TYPE
+        assert res.json == { 'error': 'Not Found' }
+
 
     def test_avg_difficulty(self, client):
         res = client.get(url_for(self.api))
